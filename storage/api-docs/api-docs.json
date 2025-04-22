@@ -1,0 +1,1211 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Laravel hakaton project",
+        "description": "Я люблю Александра Ширяева",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Development server"
+        },
+        {
+            "url": "/api"
+        }
+    ],
+    "paths": {
+        "/api/admin/volunteers/upload": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Загрузить CSV-файл со списком волонтёров для всех компаний",
+                "operationId": "827aece7ca6ac43d9e2a5484f45eb435",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "description": "CSV: full_name,inn,phone,email,birth_date (d.m.Y),achievements",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешный импорт",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Volunteers uploaded successfully"
+                                        },
+                                        "imported": {
+                                            "type": "integer",
+                                            "example": 20
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный файл"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/bonuses": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Все бонусы (админ)",
+                "operationId": "ceccf1c1eb4eba4dc80793a1b6ec34ba",
+                "responses": {
+                    "200": {
+                        "description": "Список бонусов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/volunteers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Все волонтёры (админ)",
+                "operationId": "d65013820a31e2976669159785083e1c",
+                "responses": {
+                    "200": {
+                        "description": "Список волонтёров",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "volunteers": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/VolunteerRecipient"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/companies": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Все компании (админ)",
+                "operationId": "b0b3e3967b0974182d01d706719a6853",
+                "responses": {
+                    "200": {
+                        "description": "Список компаний",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "companies": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Company"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Получить профиль текущего пользователя",
+                "operationId": "b02a7a2a0a8da8486e590a1be690f3cd",
+                "responses": {
+                    "200": {
+                        "description": "Успешно, возвращает данные пользователя и его confirmation_code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "id",
+                                        "username",
+                                        "email",
+                                        "confirmation_code"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "format": "int64",
+                                            "example": 1
+                                        },
+                                        "username": {
+                                            "type": "string",
+                                            "example": "johndoe"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "johndoe@example.com"
+                                        },
+                                        "confirmation_code": {
+                                            "type": "string",
+                                            "example": "12345"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Ошибка Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Авторизация пользователя",
+                "operationId": "bc76a9d52929cab7a147ca7b5c527430",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешный логин",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserDTO"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неверные учётные данные"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Выход",
+                "operationId": "0ab4e3cf7bc4f7ec81b48f7928c7de7c",
+                "responses": {
+                    "200": {
+                        "description": "Успешный выход"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/company/register": {
+            "post": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Регистрация новой компании",
+                "operationId": "c85000d169d212d3ab3c4b7611465191",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "MyCompany"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Успешная регистрация компании",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "company": {
+                                            "$ref": "#/components/schemas/Company"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                }
+            }
+        },
+        "/api/company/login": {
+            "post": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Авторизация компании",
+                "operationId": "080d96f5eb0af0e0041f32bef993816c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "company@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешный вход",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "company": {
+                                            "$ref": "#/components/schemas/Company"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неверные учётные данные"
+                    }
+                }
+            }
+        },
+        "/api/company/me": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Получить текущую компанию",
+                "operationId": "d12df576e39053f3f62663dce3472e85",
+                "responses": {
+                    "200": {
+                        "description": "Профиль текущей компании",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Company"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Регистрация нового пользователя",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "johndoe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Успешная регистрация",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserDTO"
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Ошибка валидации данных",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ошибка валидации данных для регистрации"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "property": null
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/company/bonuses/history": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "История всех выданных бонусов (компания)",
+                "operationId": "getCompanyHistory",
+                "responses": {
+                    "200": {
+                        "description": "История выдачи бонусов компанией",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bonuses/history": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "История полученных бонусов (пользователь)",
+                "operationId": "getUserHistory",
+                "responses": {
+                    "200": {
+                        "description": "История получения бонусов пользователем",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/company/bonuses": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Бонусы текущей компании",
+                "operationId": "getCompanyBonuses",
+                "responses": {
+                    "200": {
+                        "description": "Список бонусов компании",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Создание бонуса компанией",
+                "operationId": "createBonus",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "level"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Скидка 10%"
+                                    },
+                                    "level": {
+                                        "type": "string",
+                                        "enum": [
+                                            "max",
+                                            "medium",
+                                            "min"
+                                        ],
+                                        "example": "max"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Бонус успешно создан",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Bonus"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неправильные данные"
+                    },
+                    "401": {
+                        "description": "Не аутентифицирован"
+                    },
+                    "403": {
+                        "description": "Нет прав"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/bonuses": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Все активированные бонусы пользователя (по убыванию времени активации)",
+                "operationId": "getUserBonuses",
+                "responses": {
+                    "200": {
+                        "description": "Список бонусов пользователя",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/bonuses/available": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Доступные бонусы для текущего пользователя",
+                "operationId": "getAvailableBonuses",
+                "responses": {
+                    "200": {
+                        "description": "Список доступных бонусов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/bonuses/by-inn": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Доступные бонусы по введённому ИНН",
+                "operationId": "getBonusesByInn",
+                "parameters": [
+                    {
+                        "name": "inn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "772456789012"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список бонусов пользователя по ИНН",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bonuses": {
+            "get": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Список всех бонусов (только для админов)",
+                "operationId": "getAllBonuses",
+                "responses": {
+                    "200": {
+                        "description": "Все бонусы",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "bonuses": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Bonus"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Запрещено"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user/bonuses/{bonus}/claim": {
+            "post": {
+                "tags": [
+                    "Bonus"
+                ],
+                "summary": "Взять бонус",
+                "operationId": "claimBonus",
+                "parameters": [
+                    {
+                        "name": "bonus",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 5
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Бонус взят",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BonusClaim"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Бонус уже был использован"
+                    },
+                    "403": {
+                        "description": "Нет прав на этот бонус"
+                    },
+                    "404": {
+                        "description": "Бонус не найден"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/company/volunteers/upload": {
+            "post": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Загрузить CSV волонтёров",
+                "operationId": "117f990464539f2ee33783012e256083",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "CSV обработан"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/company/volunteers": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Список волонтёров компании",
+                "operationId": "ec29d816f9500d752eba4ed1a86677e2",
+                "responses": {
+                    "200": {
+                        "description": "Список волонтёров",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "volunteers": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/VolunteerRecipient"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserDTO": {
+                "required": [
+                    "id",
+                    "username",
+                    "email",
+                    "confirmation_code"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "johndoe@example.com"
+                    },
+                    "confirmation_code": {
+                        "type": "string",
+                        "example": "12345"
+                    }
+                },
+                "type": "object"
+            },
+            "Bonus": {
+                "required": [
+                    "id",
+                    "name",
+                    "level",
+                    "company_id",
+                    "is_used",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Скидка 10%"
+                    },
+                    "level": {
+                        "type": "string",
+                        "example": "max"
+                    },
+                    "company_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 3
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "is_used": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-04-23T15:47:55Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-04-23T15:47:55Z"
+                    }
+                },
+                "type": "object"
+            },
+            "BonusClaim": {
+                "required": [
+                    "id",
+                    "bonus_id",
+                    "volunteer_recipient_id",
+                    "claimed_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "bonus_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 2
+                    },
+                    "volunteer_recipient_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 15
+                    },
+                    "claimed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-04-23T20:47:55.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "Company": {
+                "required": [
+                    "id",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "MyCompany"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "company@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-04-23T16:55:38.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-04-23T16:55:38.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "VolunteerRecipient": {
+                "title": "VolunteerRecipient",
+                "required": [
+                    "id",
+                    "full_name",
+                    "inn",
+                    "email",
+                    "access_level",
+                    "confirmation_code"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 15
+                    },
+                    "full_name": {
+                        "type": "string",
+                        "example": "Иванов И. И."
+                    },
+                    "inn": {
+                        "type": "string",
+                        "example": "772456789012"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "volunteer@example.com"
+                    },
+                    "access_level": {
+                        "type": "string",
+                        "example": "max"
+                    },
+                    "confirmation_code": {
+                        "type": "string",
+                        "example": "12345"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Введите токен в формате: Bearer {token}"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Admin",
+            "description": "Admin"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Company",
+            "description": "Company"
+        },
+        {
+            "name": "Bonus",
+            "description": "Bonus"
+        }
+    ],
+    "security": [
+        {
+            "sanctum": []
+        }
+    ]
+}
