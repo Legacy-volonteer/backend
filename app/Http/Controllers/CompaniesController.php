@@ -76,18 +76,21 @@ class CompaniesController extends Controller
     /**
      * @OA\Get(
      *   path="/api/company/volunteers",
-     *   summary="Список волонтёров компании",
+     *   summary="Список волонтёров компании (только confirmation_code)",
      *   tags={"Company"},
      *   security={{"sanctum":{}}},
      *   @OA\Response(
      *     response=200,
-     *     description="Список волонтёров",
+     *     description="Список кодов подтверждения волонтёров компании",
      *     @OA\JsonContent(
      *       type="object",
      *       @OA\Property(
      *         property="volunteers",
      *         type="array",
-     *         @OA\Items(ref="#/components/schemas/VolunteerRecipient")
+     *         @OA\Items(
+     *           type="object",
+     *           @OA\Property(property="confirmation_code", type="string", example="12345")
+     *         )
      *       )
      *     )
      *   )
@@ -97,12 +100,19 @@ class CompaniesController extends Controller
     {
         $companyId = Auth::guard('company')->id();
 
-        $vols = VolunteerRecipient::with(['claims.bonus', 'user'])
+        $vols = VolunteerRecipient::with('user')
             ->where('company_id', $companyId)
             ->get();
 
+        // Формируем массив вида [ ['confirmation_code' => '12345'], ... ]
+        $result = $vols->map(function ($v) {
+            return [
+                'confirmation_code' => $v->user->confirmation_code ?? null,
+            ];
+        });
+
         return response()->json([
-            'volunteers' => $vols,
+            'volunteers' => $result,
         ], 200);
     }
 }
